@@ -10,13 +10,9 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Optional;
-
 import static io.r2dbc.h2.H2ConnectionFactoryProvider.H2_DRIVER;
 import static io.r2dbc.h2.H2ConnectionFactoryProvider.URL;
-import static io.r2dbc.spi.ConnectionFactoryOptions.DRIVER;
-import static io.r2dbc.spi.ConnectionFactoryOptions.PASSWORD;
-import static io.r2dbc.spi.ConnectionFactoryOptions.USER;
+import static io.r2dbc.spi.ConnectionFactoryOptions.*;
 
 @Service
 public final class SomeEntityDao {
@@ -28,7 +24,8 @@ public final class SomeEntityDao {
         connectionFactory = ConnectionFactories.get(ConnectionFactoryOptions.builder()
                 .option(DRIVER, H2_DRIVER)
                 .option(PASSWORD, "sa")
-                .option(URL, "mem:atest;DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4")
+//                .option(URL, "mem:test;DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4")
+                .option(URL, "mem:test;DB_CLOSE_DELAY=-1")
                 .option(USER, "sa")
                 .build());
         connection = connectionFactory.create();

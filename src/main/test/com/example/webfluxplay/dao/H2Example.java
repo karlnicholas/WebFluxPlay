@@ -17,9 +17,7 @@ import java.util.UUID;
 
 import static io.r2dbc.h2.H2ConnectionFactoryProvider.H2_DRIVER;
 import static io.r2dbc.h2.H2ConnectionFactoryProvider.URL;
-import static io.r2dbc.spi.ConnectionFactoryOptions.DRIVER;
-import static io.r2dbc.spi.ConnectionFactoryOptions.PASSWORD;
-import static io.r2dbc.spi.ConnectionFactoryOptions.USER;
+import static io.r2dbc.spi.ConnectionFactoryOptions.*;
 
 final class H2Example {
 
