@@ -1,4 +1,4 @@
-package com.example.webfluxplay.dao.util;
+package com.example.webfluxplay.util;
 
 /*
  * Copyright 2017-2019 the original author or authors.

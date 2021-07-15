@@ -1,4 +1,4 @@
-package com.example.webfluxplay.dao.util;
+package com.example.webfluxplay.util;
 
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;

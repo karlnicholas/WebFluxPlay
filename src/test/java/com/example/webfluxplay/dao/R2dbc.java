@@ -1,7 +1,7 @@
 package com.example.webfluxplay.dao;
 
-import com.example.webfluxplay.dao.util.Assert;
-import com.example.webfluxplay.dao.util.ReactiveUtils;
+import com.example.webfluxplay.util.Assert;
+import com.example.webfluxplay.util.ReactiveUtils;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactory;
 import org.reactivestreams.Publisher;

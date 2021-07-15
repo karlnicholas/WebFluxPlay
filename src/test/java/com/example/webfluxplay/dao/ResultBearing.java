@@ -1,6 +1,6 @@
 package com.example.webfluxplay.dao;
 
-import com.example.webfluxplay.dao.util.Assert;
+import com.example.webfluxplay.util.Assert;
 import io.r2dbc.spi.Result;
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;

@@ -17,11 +17,10 @@ import static io.r2dbc.spi.ConnectionFactoryOptions.*;
 @Service
 public final class SomeEntityDao {
 
-    private final ConnectionFactory connectionFactory;
     private final Publisher<? extends Connection> connection;
 
     public SomeEntityDao() {
-        connectionFactory = ConnectionFactories.get(ConnectionFactoryOptions.builder()
+        ConnectionFactory connectionFactory = ConnectionFactories.get(ConnectionFactoryOptions.builder()
                 .option(DRIVER, H2_DRIVER)
                 .option(PASSWORD, "sa")
 //                .option(URL, "mem:test;DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4")

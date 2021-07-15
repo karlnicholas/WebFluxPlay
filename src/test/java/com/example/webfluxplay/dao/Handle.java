@@ -1,6 +1,6 @@
 package com.example.webfluxplay.dao;
 
-import com.example.webfluxplay.dao.util.Assert;
+import com.example.webfluxplay.util.Assert;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.IsolationLevel;
 import org.reactivestreams.Publisher;
@@ -10,8 +10,8 @@ import reactor.core.publisher.Mono;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
-import static com.example.webfluxplay.dao.util.ReactiveUtils.appendError;
-import static com.example.webfluxplay.dao.util.ReactiveUtils.typeSafe;
+import static com.example.webfluxplay.util.ReactiveUtils.appendError;
+import static com.example.webfluxplay.util.ReactiveUtils.typeSafe;
 
 /**
  * A wrapper for a {@link Connection} providing additional convenience APIs.
