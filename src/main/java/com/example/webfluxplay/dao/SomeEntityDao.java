@@ -28,7 +28,7 @@ public final class SomeEntityDao {
         connectionFactory = ConnectionFactories.get(ConnectionFactoryOptions.builder()
                 .option(DRIVER, H2_DRIVER)
                 .option(PASSWORD, "sa")
-                .option(URL, "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4")
+                .option(URL, "mem:atest;DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4")
                 .option(USER, "sa")
                 .build());
         connection = connectionFactory.create();
@@ -36,47 +36,41 @@ public final class SomeEntityDao {
 
     public Mono<Integer> createTable() {
         return Mono.from(connection)
-                .map(con -> con.createStatement("create table some_entity (id bigint not null auto_increment, value varchar(255) not null, primary key (id)) engine=InnoDB;").execute())
-                .flatMap(result->Mono.from(result).flatMap(res-> Mono.from(res.getRowsUpdated())));
+                .map(con -> con.createStatement("create table some_entity (id bigint not null auto_increment, value varchar(255) not null, primary key (id))").execute())
+                .flatMap(result -> Mono.from(result).flatMap(res -> Mono.from(res.getRowsUpdated())));
     }
+
     public Flux<SomeEntity> findAll() {
         return Mono.from(connection).map(con -> con.createStatement("select * from some_entity").execute())
                 .flatMapMany(resultPublisher -> Flux.from(resultPublisher).flatMap(result -> result.map((row, rowMetadata) -> {
                     SomeEntity someEntity = new SomeEntity();
-                    someEntity.setId(row.get("id", Long.class));
-                    someEntity.setValue(row.get("value", String.class));
+                    someEntity.setId(row.get(0, Long.class));
+                    someEntity.setValue(row.get(1, String.class));
                     return someEntity;
                 })));
     }
 
     public Mono<SomeEntity> save(SomeEntity someEntity) {
-        return Mono.from(connection).map(con -> con.createStatement("insert into some_entity('id', 'value') values(':id', ':value')")
-                .bind("id", someEntity.getId())
-                .bind("value", someEntity.getValue())
+        return Mono.from(connection).map(con -> con.createStatement("insert into some_entity(value) values (?)")
+                .bind(0, someEntity.getValue())
                 .returnGeneratedValues()
                 .execute())
                 .flatMap(resultPublisher -> Mono.from(resultPublisher).flatMap(result -> Mono.from(result.map((row, rowMetadata) -> {
-                    someEntity.setId(row.get("id", Long.class));
+                    someEntity.setId(row.get(0, Long.class));
                     return someEntity;
                 }))));
     }
 
-    public Mono<Optional<SomeEntity>> findById(Long id) {
-        return Mono.from(connection).map(con -> con.createStatement("select * some_entity where id = ':id'")
-                .bind("id", id)
+    public Mono<SomeEntity> findById(Long id) {
+        return Mono.from(connection).map(con -> con.createStatement("select * from some_entity where id = ?")
+                .bind(0, id)
                 .execute())
-                .flatMap(resultPublisher -> Mono.from(resultPublisher).flatMap(possibleResult -> {
-                    return Mono.from(possibleResult.getRowsUpdated()).map(i -> Optional.ofNullable(i > 0 ? possibleResult : null))
-                            .filter(Optional::isPresent)
-                            .map(Optional::get)
-                            .flatMap(oResultFound -> Mono.from(oResultFound.map((row, rowMetadata) -> {
-                                SomeEntity someEntity = new SomeEntity();
-                                someEntity.setId(row.get("id", Long.class));
-                                someEntity.setValue(row.get("value", String.class));
-                                return someEntity;
-                            })))
-                            .map(Optional::of);
-                }));
+                .flatMap(resultPublisher -> Mono.from(resultPublisher).flatMap(result -> Mono.from(result.map((row, rowMetadata) -> {
+                    SomeEntity someEntity = new SomeEntity();
+                    someEntity.setId(row.get(0, Long.class));
+                    someEntity.setValue(row.get(1, String.class));
+                    return someEntity;
+                }))));
     }
 
 }
