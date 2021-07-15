@@ -2,7 +2,6 @@ package com.example.webfluxplay.api;
 
 import com.example.webfluxplay.dao.SomeEntityDao;
 import com.example.webfluxplay.model.SomeEntity;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
