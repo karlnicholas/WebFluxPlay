@@ -12,7 +12,7 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 
 @Configuration
 @EnableWebFlux
-public class WebConfig implements WebFluxConfigurer {
+public class RoutingConfig implements WebFluxConfigurer {
     @Bean
     public RouterFunction<?> routerFunctions(SomeEntityHandler handler) {
         return route()
