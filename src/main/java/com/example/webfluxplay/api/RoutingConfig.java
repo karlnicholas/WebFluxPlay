@@ -1,10 +1,18 @@
 package com.example.webfluxplay.api;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.SearchStrategy;
+import org.springframework.boot.web.error.ErrorAttributeOptions;
+import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
+import org.springframework.boot.web.reactive.error.ErrorAttributes;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.ServerRequest;
+
+import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
@@ -23,4 +31,16 @@ public class RoutingConfig implements WebFluxConfigurer {
                         .POST(handler::createSomeEntity))
                 .build();
     }
+    @Bean
+    public DefaultErrorAttributes errorAttributes() {
+        return new MessageErrorAttributes();
+    }
+
+    class MessageErrorAttributes extends DefaultErrorAttributes {
+        @Override
+        public Map<String, Object> getErrorAttributes(ServerRequest request, ErrorAttributeOptions options) {
+            return super.getErrorAttributes(request, ErrorAttributeOptions.of(ErrorAttributeOptions.Include.MESSAGE));
+        }
+    }
+
 }
