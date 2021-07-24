@@ -16,6 +16,7 @@ import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
+import static org.springframework.web.reactive.function.server.RequestPredicates.contentType;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @Configuration
@@ -28,7 +29,7 @@ public class RoutingConfig implements WebFluxConfigurer {
                         .nest(accept(APPLICATION_JSON), b2 -> b2
                                 .GET("/{id}", handler::getSomeEntity)
                                 .GET(handler::listSomeEntities))
-                        .POST(handler::createSomeEntity))
+                        .POST(contentType(APPLICATION_JSON), handler::createSomeEntity))
                 .build();
     }
     @Bean
