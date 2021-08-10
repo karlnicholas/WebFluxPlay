@@ -5,6 +5,9 @@ import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.ConnectionFactoryOptions;
+import io.r2dbc.spi.Row;
+import io.r2dbc.spi.RowMetadata;
+
 import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -13,6 +16,8 @@ import reactor.core.publisher.Mono;
 import static io.r2dbc.h2.H2ConnectionFactoryProvider.H2_DRIVER;
 import static io.r2dbc.h2.H2ConnectionFactoryProvider.URL;
 import static io.r2dbc.spi.ConnectionFactoryOptions.*;
+
+import java.util.function.BiFunction;
 
 @Service
 public final class SomeEntityDao {
@@ -35,15 +40,17 @@ public final class SomeEntityDao {
                 .map(con -> con.createStatement("create table some_entity (id bigint not null auto_increment, value varchar(255) not null, primary key (id))").execute())
                 .flatMap(result -> Mono.from(result).flatMap(res -> Mono.from(res.getRowsUpdated())));
     }
+    
+    private BiFunction<Row, RowMetadata, SomeEntity> mapper = (row, rowMetadata) -> {
+        SomeEntity someEntity = new SomeEntity();
+        someEntity.setId(row.get(0, Long.class));
+        someEntity.setValue(row.get(1, String.class));
+        return someEntity;
+    };
 
     public Flux<SomeEntity> findAll() {
         return Mono.from(connection).map(con -> con.createStatement("select * from some_entity").execute())
-                .flatMapMany(resultPublisher -> Flux.from(resultPublisher).flatMap(result -> result.map((row, rowMetadata) -> {
-                    SomeEntity someEntity = new SomeEntity();
-                    someEntity.setId(row.get(0, Long.class));
-                    someEntity.setValue(row.get(1, String.class));
-                    return someEntity;
-                })));
+                .flatMapMany(resultPublisher -> Flux.from(resultPublisher).flatMap(result -> result.map(mapper)));
     }
 
     public Mono<SomeEntity> save(SomeEntity someEntity) {
@@ -61,12 +68,7 @@ public final class SomeEntityDao {
         return Mono.from(connection).map(con -> con.createStatement("select * from some_entity where id = ?")
                 .bind(0, id)
                 .execute())
-                .flatMap(resultPublisher -> Mono.from(resultPublisher).flatMap(result -> Mono.from(result.map((row, rowMetadata) -> {
-                    SomeEntity someEntity = new SomeEntity();
-                    someEntity.setId(row.get(0, Long.class));
-                    someEntity.setValue(row.get(1, String.class));
-                    return someEntity;
-                }))));
+                .flatMap(resultPublisher -> Mono.from(resultPublisher).flatMap(result -> Mono.from(result.map(mapper))));
     }
 
 }
