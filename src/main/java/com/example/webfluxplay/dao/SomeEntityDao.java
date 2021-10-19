@@ -71,4 +71,11 @@ public final class SomeEntityDao {
                 .flatMap(resultPublisher -> Mono.from(resultPublisher).flatMap(result -> Mono.from(result.map(mapper))));
     }
 
+    public Mono<Integer> deleteById(Long id) {
+        return Mono.from(connection)
+                .map(con -> con.createStatement("delete from some_entity where id = ?")
+                .bind(0, id)
+                .execute())
+                .flatMap(result -> Mono.from(result).flatMap(res -> Mono.from(res.getRowsUpdated())));
+    }
 }

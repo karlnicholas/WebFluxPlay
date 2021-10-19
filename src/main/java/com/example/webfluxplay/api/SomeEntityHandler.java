@@ -43,6 +43,11 @@ public class SomeEntityHandler {
                 .body(dao.findById(Long.valueOf(request.pathVariable("id"))), SomeEntity.class);
     }
 
+    public Mono<ServerResponse> deleteSomeEntity(ServerRequest request) {
+        return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
+                .body(dao.deleteById(Long.valueOf(request.pathVariable("id"))), SomeEntity.class);
+    }
+
     private void validate(SomeEntity someEntity) {
         Errors errors = new BeanPropertyBindingResult(someEntity, "SomeEntity");
         validator.validate(someEntity, errors);
