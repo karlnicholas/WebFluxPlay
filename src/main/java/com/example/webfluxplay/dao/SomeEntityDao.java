@@ -43,8 +43,8 @@ public final class SomeEntityDao {
     
     private BiFunction<Row, RowMetadata, SomeEntity> mapper = (row, rowMetadata) -> {
         SomeEntity someEntity = new SomeEntity();
-        someEntity.setId(row.get(0, Long.class));
-        someEntity.setValue(row.get(1, String.class));
+        someEntity.setId(row.get("id", Long.class));
+        someEntity.setValue(row.get("value", String.class));
         return someEntity;
     };
 
@@ -54,27 +54,27 @@ public final class SomeEntityDao {
     }
 
     public Mono<SomeEntity> save(SomeEntity someEntity) {
-        return Mono.from(connection).map(con -> con.createStatement("insert into some_entity(value) values (?)")
-                .bind(0, someEntity.getValue())
+        return Mono.from(connection).map(con -> con.createStatement("insert into some_entity(value) values ($1)")
+                .bind("$1", someEntity.getValue())
                 .returnGeneratedValues()
                 .execute())
                 .flatMap(resultPublisher -> Mono.from(resultPublisher).flatMap(result -> Mono.from(result.map((row, rowMetadata) -> {
-                    someEntity.setId(row.get(0, Long.class));
+                    someEntity.setId(row.get("id", Long.class));
                     return someEntity;
                 }))));
     }
 
     public Mono<SomeEntity> findById(Long id) {
-        return Mono.from(connection).map(con -> con.createStatement("select * from some_entity where id = ?")
-                .bind(0, id)
+        return Mono.from(connection).map(con -> con.createStatement("select * from some_entity where id = $1")
+                .bind("$1", id)
                 .execute())
                 .flatMap(resultPublisher -> Mono.from(resultPublisher).flatMap(result -> Mono.from(result.map(mapper))));
     }
 
     public Mono<Integer> deleteById(Long id) {
         return Mono.from(connection)
-                .map(con -> con.createStatement("delete from some_entity where id = ?")
-                .bind(0, id)
+                .map(con -> con.createStatement("delete from some_entity where id = $1")
+                .bind("$1", id)
                 .execute())
                 .flatMap(result -> Mono.from(result).flatMap(res -> Mono.from(res.getRowsUpdated())));
     }
