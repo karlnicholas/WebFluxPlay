@@ -38,6 +38,13 @@ public class SomeEntityHandler {
                         .flatMap(dao::save), SomeEntity.class);
     }
 
+    public Mono<ServerResponse> updateSomeEntity(ServerRequest request) {
+        return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
+                .body(request.bodyToMono(SomeEntity.class)
+                        .doOnNext(this::validate)
+                        .flatMap(dao::update), SomeEntity.class);
+    }
+
     public Mono<ServerResponse> getSomeEntity(ServerRequest request) {
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
                 .body(dao.findById(Long.valueOf(request.pathVariable("id"))), SomeEntity.class);
@@ -55,4 +62,5 @@ public class SomeEntityHandler {
             throw new ServerWebInputException(errors.toString());
         }
     }
+
 }
