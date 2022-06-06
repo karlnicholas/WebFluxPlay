@@ -45,7 +45,7 @@ public final class SomeEntityDao {
     public Flux<SomeEntity> findAll() {
         return connection.flatMap(con -> Mono.from(con.createStatement("select * from some_entity")
                         .execute()))
-                .flatMapMany(result -> Flux.from(result.map(mapper)));
+                .flatMapMany(result -> result.map(mapper));
     }
 
     public Mono<SomeEntity> save(SomeEntity someEntity) {
