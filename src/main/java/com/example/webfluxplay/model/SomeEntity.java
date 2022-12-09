@@ -23,4 +23,8 @@ public class SomeEntity {
     public void setValue(String value) {
         this.value = value;
     }
+
+    public SomeEntity merge(SomeEntity existingEntity) {
+        return this;
+    }
 }
