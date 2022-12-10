@@ -24,8 +24,10 @@ public class RoutingConfig implements WebFluxConfigurer {
                 RouterFunctions.nest(accept(APPLICATION_JSON),
                         RouterFunctions.route(GET("/{id}"), handler::getSomeEntity)
                                 .andRoute(GET(""), handler::listSomeEntities)
-                                .andRoute(POST("").and(contentType(APPLICATION_JSON)), handler::createSomeEntity)
-                                .andRoute(PATCH("").and(contentType(APPLICATION_JSON)), handler::updateSomeEntity)
+                                .andNest(contentType(APPLICATION_JSON),
+                                        RouterFunctions.route(POST(""), handler::createSomeEntity)
+                                                .andRoute(PATCH(""), handler::updateSomeEntity)
+                                )
                 ).andRoute(DELETE("/{id}"), handler::deleteSomeEntity)
         );
     }
@@ -35,7 +37,7 @@ public class RoutingConfig implements WebFluxConfigurer {
         return new MessageErrorAttributes();
     }
 
-    class MessageErrorAttributes extends DefaultErrorAttributes {
+    static class MessageErrorAttributes extends DefaultErrorAttributes {
         @Override
         public Map<String, Object> getErrorAttributes(ServerRequest request, ErrorAttributeOptions options) {
             return super.getErrorAttributes(request, ErrorAttributeOptions.of(ErrorAttributeOptions.Include.MESSAGE));
