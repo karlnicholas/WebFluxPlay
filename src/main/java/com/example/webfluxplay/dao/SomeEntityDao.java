@@ -31,7 +31,7 @@ public final class SomeEntityDao {
     }
 
     public Mono<Long> createTable() {
-        return connection.flatMap(con -> Mono.from(con.createStatement("create table if not exists some_entity (id bigint not null auto_increment, value varchar(255) not null, primary key (id))")
+        return connection.flatMap(con -> Mono.from(con.createStatement("create table if not exists some_entity (id bigint not null auto_increment, name varchar(255) not null, primary key (id))")
                         .execute()))
                 .flatMap(result -> Mono.from(result.getRowsUpdated()));
 
@@ -40,7 +40,7 @@ public final class SomeEntityDao {
     private final BiFunction<Row, RowMetadata, SomeEntity> mapper = (row, rowMetadata) -> {
         SomeEntity someEntity = new SomeEntity();
         someEntity.setId(row.get("id", Long.class));
-        someEntity.setValue(row.get("value", String.class));
+        someEntity.setName(row.get("name", String.class));
         return someEntity;
     };
 
@@ -51,8 +51,8 @@ public final class SomeEntityDao {
     }
 
     public Mono<SomeEntity> save(SomeEntity someEntity) {
-        return connection.flatMap(con -> Mono.from(con.createStatement("insert into some_entity(value) values ($1)")
-                        .bind("$1", someEntity.getValue())
+        return connection.flatMap(con -> Mono.from(con.createStatement("insert into some_entity(name) values ($1)")
+                        .bind("$1", someEntity.getName())
                         .returnGeneratedValues()
                         .execute()))
                 .flatMap(result -> Mono.from(result.map((row, rowMetadata) -> {
@@ -62,9 +62,9 @@ public final class SomeEntityDao {
     }
 
     public Mono<Long> update(SomeEntity someEntity) {
-        return connection.flatMap(con -> Mono.from(con.createStatement("update some_entity set value=$2 where id = $1")
+        return connection.flatMap(con -> Mono.from(con.createStatement("update some_entity set name=$2 where id = $1")
                         .bind("$1", someEntity.getId())
-                        .bind("$2", someEntity.getValue())
+                        .bind("$2", someEntity.getName())
                 .execute()))
                 .flatMap(result -> Mono.from(result.getRowsUpdated()));
     }

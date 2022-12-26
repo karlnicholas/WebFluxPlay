@@ -6,7 +6,7 @@ public class SomeEntity {
     private Long id;
 
     @NotNull
-    private String value;
+    private String name;
 
     public Long getId() {
         return id;
@@ -16,12 +16,12 @@ public class SomeEntity {
         this.id = id;
     }
 
-    public String getValue() {
-        return value;
+    public String getName() {
+        return name;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public SomeEntity merge(SomeEntity existingEntity) {
