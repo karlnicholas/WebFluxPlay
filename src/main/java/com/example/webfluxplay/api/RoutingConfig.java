@@ -23,7 +23,7 @@ public class RoutingConfig implements WebFluxConfigurer {
         return RouterFunctions.nest(path("/api/someentity"),
                 RouterFunctions.nest(accept(APPLICATION_JSON),
                         RouterFunctions.route(GET("/{id}"), handler::getSomeEntity)
-                                .andRoute(GET(""), handler::listSomeEntities)
+                                .andRoute(GET(""), r->handler.listSomeEntities())
                                 .andNest(contentType(APPLICATION_JSON),
                                         RouterFunctions.route(POST(""), handler::createSomeEntity)
                                                 .andRoute(PATCH(""), handler::updateSomeEntity)
@@ -43,5 +43,4 @@ public class RoutingConfig implements WebFluxConfigurer {
             return super.getErrorAttributes(request, ErrorAttributeOptions.of(ErrorAttributeOptions.Include.MESSAGE));
         }
     }
-
 }

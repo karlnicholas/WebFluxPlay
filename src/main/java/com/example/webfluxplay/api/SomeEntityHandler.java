@@ -14,7 +14,6 @@ import reactor.core.publisher.Mono;
 
 @Component
 public class SomeEntityHandler {
-
     private final Validator validator;
     private final SomeEntityDao dao;
 
@@ -26,7 +25,7 @@ public class SomeEntityHandler {
         this.dao = dao;
     }
 
-    public Mono<ServerResponse> listSomeEntities(ServerRequest request) {
+    public Mono<ServerResponse> listSomeEntities() {
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
                 .body(dao.findAll(), SomeEntity.class);
     }
