@@ -15,7 +15,6 @@ import java.util.function.BiFunction;
 
 @Service
 public final class SomeEntityDao {
-
     private final Mono<? extends Connection> connection;
 
     public SomeEntityDao() {
@@ -34,7 +33,6 @@ public final class SomeEntityDao {
         return connection.flatMap(con -> Mono.from(con.createStatement("create table if not exists some_entity (id bigint not null auto_increment, name varchar(255) not null, primary key (id))")
                         .execute()))
                 .flatMap(result -> Mono.from(result.getRowsUpdated()));
-
     }
 
     private final BiFunction<Row, RowMetadata, SomeEntity> mapper = (row, rowMetadata) -> {
@@ -68,6 +66,7 @@ public final class SomeEntityDao {
                 .execute()))
                 .flatMap(result -> Mono.from(result.getRowsUpdated()));
     }
+
     public Mono<SomeEntity> findById(Long id) {
         return connection.flatMap(con -> Mono.from(con.createStatement("select * from some_entity where id = $1")
                         .bind("$1", id)
