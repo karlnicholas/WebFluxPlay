@@ -25,6 +25,9 @@ public class SomeEntity {
     }
 
     public SomeEntity merge(SomeEntity existingEntity) {
+        if (name == null) {
+            name = existingEntity.getName();
+        }
         return this;
     }
 }
