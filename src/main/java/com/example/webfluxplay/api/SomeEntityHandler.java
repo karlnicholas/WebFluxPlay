@@ -45,7 +45,7 @@ public class SomeEntityHandler {
 
     public Mono<ServerResponse> deleteSomeEntity(ServerRequest request) {
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
-                .body(dao.deleteById(Long.valueOf(request.pathVariable("id"))), SomeEntity.class);
+                .body(dao.deleteById(Long.valueOf(request.pathVariable("id"))), Long.class);
     }
 
     private void validate(SomeEntity someEntity) {
@@ -61,8 +61,8 @@ public class SomeEntityHandler {
                 .body(request.bodyToMono(SomeEntity.class)
                         .doOnNext(this::validate)
                         .flatMap(updateEntity-> dao.findById(updateEntity.getId())
-                                .switchIfEmpty(Mono.error(new Exception("CCC")))
+                                .switchIfEmpty(Mono.error(new Exception("Entity not found")))
                                 .map(updateEntity::merge))
-                        .flatMap(dao::update), SomeEntity.class);
+                        .flatMap(dao::update), Long.class);
     }
 }
