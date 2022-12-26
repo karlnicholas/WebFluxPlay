@@ -107,7 +107,7 @@ public final class Handle {
      * @return the number of rows that were updated
      * @throws IllegalArgumentException if {@code sql} or {@code parameters} is {@code null}
      */
-    public Flux<Integer> execute(String sql, Object... parameters) {
+    public Flux<Long> execute(String sql, Object... parameters) {
         Assert.requireNonNull(sql, "sql must not be null");
         Assert.requireNonNull(parameters, "parameters must not be null");
 

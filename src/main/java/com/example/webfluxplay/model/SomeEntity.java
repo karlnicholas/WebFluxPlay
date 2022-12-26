@@ -1,6 +1,6 @@
 package com.example.webfluxplay.model;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public class SomeEntity {
     private Long id;

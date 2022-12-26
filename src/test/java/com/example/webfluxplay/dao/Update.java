@@ -93,7 +93,7 @@ public final class Update {
      *
      * @return the number of rows that were updated
      */
-    public Flux<Integer> execute() {
+    public Flux<Long> execute() {
         return Flux
                 .from(this.statement.execute())
                 .flatMap(Result::getRowsUpdated);

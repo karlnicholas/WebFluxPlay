@@ -30,7 +30,7 @@ public final class SomeEntityDao {
         connection = Mono.from(connectionFactory.create()).cache();
     }
 
-    public Mono<Integer> createTable() {
+    public Mono<Long> createTable() {
         return connection.flatMap(con -> Mono.from(con.createStatement("create table if not exists some_entity (id bigint not null auto_increment, value varchar(255) not null, primary key (id))")
                         .execute()))
                 .flatMap(result -> Mono.from(result.getRowsUpdated()));
@@ -61,7 +61,7 @@ public final class SomeEntityDao {
                 })));
     }
 
-    public Mono<Integer> update(SomeEntity someEntity) {
+    public Mono<Long> update(SomeEntity someEntity) {
         return connection.flatMap(con -> Mono.from(con.createStatement("update some_entity set value=$2 where id = $1")
                         .bind("$1", someEntity.getId())
                         .bind("$2", someEntity.getValue())
@@ -75,7 +75,7 @@ public final class SomeEntityDao {
                 .flatMap(result -> Mono.from(result.map(mapper)));
     }
 
-    public Mono<Integer> deleteById(Long id) {
+    public Mono<Long> deleteById(Long id) {
         return connection.flatMap(con -> Mono.from(con.createStatement("delete from some_entity where id = $1")
                         .bind("$1", id)
                         .execute()))
