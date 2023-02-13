@@ -24,9 +24,11 @@ public class RoutingConfig implements WebFluxConfigurer {
         return RouterFunctions.nest(path("/api/someentity"),
                 RouterFunctions.nest(accept(APPLICATION_JSON),
                                 RouterFunctions.route(GET("/{id}"), handler::getSomeEntity)
-                                        .andRoute(GET(""), handler::listSomeEntities)
-                                        .andRoute(POST("").and(contentType(APPLICATION_JSON)), handler::createSomeEntity)
-                                        .andRoute(PATCH("").and(contentType(APPLICATION_JSON)), handler::updateSomeEntity)
+                                        .andRoute(GET(""), r -> handler.listSomeEntities())
+                                        .andNest(contentType(APPLICATION_JSON),
+                                                RouterFunctions.route(POST(""), handler::createSomeEntity)
+                                                        .andRoute(PATCH(""), handler::updateSomeEntity)
+                                        )
                         )
                         .andRoute(DELETE("/{id}"), handler::deleteSomeEntity)
         );

@@ -23,4 +23,9 @@ public class SomeEntity {
     public void setSvalue(String svalue) {
         this.svalue = svalue;
     }
-}
+    public SomeEntity merge(SomeEntity existingEntity) {
+        if (svalue == null) {
+            svalue = existingEntity.getSvalue();
+        }
+        return this;
+    }}

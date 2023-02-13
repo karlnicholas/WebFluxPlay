@@ -73,12 +73,13 @@ public final class SomeEntityDao {
                 Connection::close);
     }
 
-    public Mono<Void> update(SomeEntity someEntity) {
+    public Mono<Long> update(SomeEntity someEntity) {
         return Mono.usingWhen(pooledConnection.create(), // allocates a connection from the pool
                 connection -> Mono.from(connection.createStatement("update some_entity set svalue = $1 where id = $2")
                                 .bind("$1", someEntity.getSvalue())
                                 .bind("$2", someEntity.getId())
-                                .execute()).thenEmpty(Mono.empty()),
+                            .execute())
+                    .flatMap(result -> Mono.from(result.getRowsUpdated())),
                 Connection::close);
     }
 
