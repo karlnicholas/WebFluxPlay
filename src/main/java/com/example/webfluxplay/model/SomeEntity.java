@@ -1,12 +1,12 @@
 package com.example.webfluxplay.model;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public class SomeEntity {
     private Long id;
 
     @NotNull
-    private String value;
+    private String svalue;
 
     public Long getId() {
         return id;
@@ -16,11 +16,11 @@ public class SomeEntity {
         this.id = id;
     }
 
-    public String getValue() {
-        return value;
+    public String getSvalue() {
+        return svalue;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setSvalue(String svalue) {
+        this.svalue = svalue;
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.reactive.function.server.ServerResponse;
 
 import java.util.Map;
 
@@ -19,14 +20,14 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 @EnableWebFlux
 public class RoutingConfig implements WebFluxConfigurer {
     @Bean
-    public RouterFunction<?> routerFunctions(SomeEntityHandler handler) {
+    public RouterFunction<ServerResponse> routerFunctions(SomeEntityHandler handler) {
         return RouterFunctions.nest(path("/api/someentity"),
                 RouterFunctions.nest(accept(APPLICATION_JSON),
                                 RouterFunctions.route(GET("/{id}"), handler::getSomeEntity)
                                         .andRoute(GET(""), handler::listSomeEntities)
                                         .andRoute(POST("").and(contentType(APPLICATION_JSON)), handler::createSomeEntity)
+                                        .andRoute(PATCH("").and(contentType(APPLICATION_JSON)), handler::updateSomeEntity)
                         )
-                        .andRoute(PATCH("").and(contentType(APPLICATION_JSON)), handler::updateSomeEntity)
                         .andRoute(DELETE("/{id}"), handler::deleteSomeEntity)
         );
     }
