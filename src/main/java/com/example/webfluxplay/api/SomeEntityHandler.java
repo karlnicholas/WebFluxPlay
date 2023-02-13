@@ -14,7 +14,6 @@ import reactor.core.publisher.Mono;
 
 @Component
 public class SomeEntityHandler {
-
     private final Validator validator;
     private final SomeEntityDao dao;
 
@@ -26,7 +25,7 @@ public class SomeEntityHandler {
         this.dao = dao;
     }
 
-    public Mono<ServerResponse> listSomeEntities(ServerRequest request) {
+    public Mono<ServerResponse> listSomeEntities() {
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
                 .body(dao.findAll(), SomeEntity.class);
     }
@@ -38,13 +37,6 @@ public class SomeEntityHandler {
                         .flatMap(dao::save), SomeEntity.class);
     }
 
-    public Mono<ServerResponse> updateSomeEntity(ServerRequest request) {
-        return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
-                .body(request.bodyToMono(SomeEntity.class)
-                        .doOnNext(this::validate)
-                        .flatMap(dao::update), SomeEntity.class);
-    }
-
     public Mono<ServerResponse> getSomeEntity(ServerRequest request) {
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
                 .body(dao.findById(Long.valueOf(request.pathVariable("id"))), SomeEntity.class);
@@ -52,7 +44,7 @@ public class SomeEntityHandler {
 
     public Mono<ServerResponse> deleteSomeEntity(ServerRequest request) {
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
-                .body(dao.deleteById(Long.valueOf(request.pathVariable("id"))), SomeEntity.class);
+                .body(dao.deleteById(Long.valueOf(request.pathVariable("id"))), Long.class);
     }
 
     private void validate(SomeEntity someEntity) {
@@ -63,4 +55,13 @@ public class SomeEntityHandler {
         }
     }
 
+    public Mono<ServerResponse> updateSomeEntity(ServerRequest request) {
+        return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
+                .body(request.bodyToMono(SomeEntity.class)
+                        .doOnNext(this::validate)
+                        .flatMap(updateEntity-> dao.findById(updateEntity.getId())
+                                .switchIfEmpty(Mono.error(new Exception("Entity not found")))
+                                .map(updateEntity::merge))
+                        .flatMap(dao::update), Long.class);
+    }
 }
