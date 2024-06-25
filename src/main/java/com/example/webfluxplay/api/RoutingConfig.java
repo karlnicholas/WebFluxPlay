@@ -40,7 +40,7 @@ public class RoutingConfig implements WebFluxConfigurer {
         return new MessageErrorAttributes();
     }
 
-    class MessageErrorAttributes extends DefaultErrorAttributes {
+    static class MessageErrorAttributes extends DefaultErrorAttributes {
         @Override
         public Map<String, Object> getErrorAttributes(ServerRequest request, ErrorAttributeOptions options) {
             return super.getErrorAttributes(request, ErrorAttributeOptions.of(ErrorAttributeOptions.Include.MESSAGE));

@@ -67,12 +67,13 @@ public class SomeEntityHandler {
     }
 
     private void validateAll(List<SomeEntity> someEntities) {
-        Errors errors = new BeanPropertyBindingResult(someEntities, "List<SomeEntity>");
-        validator.validate(someEntities, errors);
+        Errors errors = new BeanPropertyBindingResult(someEntities, "SomeEntity");
+        someEntities.forEach(someEntity -> validator.validate(someEntity, errors));
         if (errors.hasErrors()) {
             throw new ServerWebInputException(errors.toString());
         }
     }
+
     public Mono<ServerResponse> updateSomeEntity(ServerRequest request) {
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
                 .body(request.bodyToMono(SomeEntity.class)
