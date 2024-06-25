@@ -1,25 +1,30 @@
 package com.example.webfluxplay;
 
 import com.example.webfluxplay.dao.SomeEntityDao;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 
 @SpringBootApplication
+@Slf4j
 public class WebfluxplayApplication {
+
+    public WebfluxplayApplication(SomeEntityDao dao) {
+        this.dao = dao;
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(WebfluxplayApplication.class, args);
     }
 
-    @Autowired
-    private SomeEntityDao dao;
+
+    private final SomeEntityDao dao;
 
     @EventListener(ApplicationReadyEvent.class)
     public void doSomethingAfterStartup() {
-        dao.createTable().subscribe(i->System.out.println("Table created: " + i));
+        dao.createTable().subscribe(i->log.info("Table created: " + i));
     }
 
 }
