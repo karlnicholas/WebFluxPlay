@@ -9,6 +9,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.function.BiFunction;
 
 import static io.r2dbc.h2.H2ConnectionFactoryProvider.H2_DRIVER;
@@ -98,6 +99,19 @@ public final class SomeEntityDao {
                                 .bind("$1", id)
                                 .execute())
                         .flatMap(res -> Mono.from(res.getRowsUpdated())),
+                Connection::close);
+    }
+
+    public Flux<SomeEntity> saveAll(List<SomeEntity> someEntities) {
+        return Flux.usingWhen(pooledConnection.create(), // allocates a connection from the pool
+                connection -> Flux.fromIterable(someEntities).flatMap(someEntity-> Mono.zip(Mono.just(someEntity), Mono.from(connection.createStatement("insert into some_entity(svalue) values ($1)")
+                                .bind("$1", someEntity.getSvalue())
+                                .returnGeneratedValues()
+                                .execute())))
+                        .flatMap(tuple2 -> Mono.from(tuple2.getT2().map((row, rowMetadata) -> {
+                            tuple2.getT1().setId(row.get("id", Long.class));
+                            return tuple2.getT1();
+                        }))),
                 Connection::close);
     }
 }

@@ -2,6 +2,7 @@ package com.example.webfluxplay.api;
 
 import com.example.webfluxplay.dao.SomeEntityDao;
 import com.example.webfluxplay.model.SomeEntity;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -11,6 +12,8 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Component
 public class SomeEntityHandler {
@@ -37,6 +40,14 @@ public class SomeEntityHandler {
                         .flatMap(dao::save), SomeEntity.class);
     }
 
+    public Mono<ServerResponse> createSomeEntities(ServerRequest request) {
+        ParameterizedTypeReference<List<SomeEntity>> ptr = new ParameterizedTypeReference<>() {};
+        return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
+                .body(request.bodyToMono(ptr)
+                        .doOnNext(this::validateAll)
+                        .flatMapMany(dao::saveAll), SomeEntity.class);
+    }
+
     public Mono<ServerResponse> getSomeEntity(ServerRequest request) {
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
                 .body(dao.findById(Long.valueOf(request.pathVariable("id"))), SomeEntity.class);
@@ -55,6 +66,13 @@ public class SomeEntityHandler {
         }
     }
 
+    private void validateAll(List<SomeEntity> someEntities) {
+        Errors errors = new BeanPropertyBindingResult(someEntities, "List<SomeEntity>");
+        validator.validate(someEntities, errors);
+        if (errors.hasErrors()) {
+            throw new ServerWebInputException(errors.toString());
+        }
+    }
     public Mono<ServerResponse> updateSomeEntity(ServerRequest request) {
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
                 .body(request.bodyToMono(SomeEntity.class)
