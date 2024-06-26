@@ -10,6 +10,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 
 import static io.r2dbc.h2.H2ConnectionFactoryProvider.H2_DRIVER;
@@ -18,7 +19,6 @@ import static io.r2dbc.spi.ConnectionFactoryOptions.*;
 
 @Service
 public final class SomeEntityDao {
-
     private final ConnectionPool pooledConnection;
 
     public SomeEntityDao() {
@@ -30,7 +30,6 @@ public final class SomeEntityDao {
 //                .option(URL, "tcp://localhost:9092/~/some_entity")
                 .option(USER, "sa")
                 .build());
-
         ConnectionPoolConfiguration poolConfiguration = ConnectionPoolConfiguration
                 .builder(connectionFactory)
                 .initialSize(5)
@@ -40,7 +39,7 @@ public final class SomeEntityDao {
     }
 
     public Mono<Long> createTable() {
-        return Mono.usingWhen(pooledConnection.create(), // allocates a connection from the pool
+        return Mono.usingWhen( pooledConnection.create(), // allocates a connection from the pool
                 connection -> Mono.from(connection.createStatement("create table if not exists some_entity (id bigint not null generated always as IDENTITY, svalue varchar(255) not null, primary key (id))")
                         .execute()).flatMap(result -> Mono.from(result.getRowsUpdated())),
                 Connection::close);
@@ -65,7 +64,7 @@ public final class SomeEntityDao {
         return Mono.usingWhen(pooledConnection.create(), // allocates a connection from the pool
                 connection -> Mono.from(connection.createStatement("insert into some_entity(svalue) values ($1)")
                                 .bind("$1", someEntity.getSvalue())
-                                .returnGeneratedValues()
+                                .returnGeneratedValues("id")
                                 .execute())
                         .flatMap(result -> Mono.from(result.map((row, rowMetadata) -> {
                             someEntity.setId(row.get("id", Long.class));
@@ -101,17 +100,21 @@ public final class SomeEntityDao {
                         .flatMap(res -> Mono.from(res.getRowsUpdated())),
                 Connection::close);
     }
-
     public Flux<SomeEntity> saveAll(List<SomeEntity> someEntities) {
         return Flux.usingWhen(pooledConnection.create(), // allocates a connection from the pool
-                connection -> Flux.fromIterable(someEntities).flatMap(someEntity-> Mono.zip(Mono.just(someEntity), Mono.from(connection.createStatement("insert into some_entity(svalue) values ($1)")
-                                .bind("$1", someEntity.getSvalue())
-                                .returnGeneratedValues()
-                                .execute())))
-                        .flatMap(tuple2 -> Mono.from(tuple2.getT2().map((row, rowMetadata) -> {
-                            tuple2.getT1().setId(row.get("id", Long.class));
-                            return tuple2.getT1();
-                        }))),
+                connection -> {
+                    Statement s = connection.createStatement("insert into some_entity(svalue) values ($1)").returnGeneratedValues("id");
+                    for (int i = 0; i < someEntities.size(); ++i) {
+                        s.bind("$1", someEntities.get(i).getSvalue());
+                        if ( i < (someEntities.size()-1) ) s.add();
+                    }
+                    AtomicInteger count = new AtomicInteger();
+                    return Flux.from(s.execute()).flatMap(result-> Mono.from(result.map((row, rowMetadata) -> {
+                        int idx = count.getAndIncrement();
+                        someEntities.get(idx).setId(row.get("id", Long.class));
+                        return someEntities.get(idx);
+                    })));
+                },
                 Connection::close);
     }
 }
